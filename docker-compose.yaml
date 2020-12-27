@@ -1,0 +1,45 @@
+version: '3'
+
+networks:
+    shipping-challenge:
+
+services:
+
+    # nginx
+    nginx-perl-service:
+    
+        container_name: nginx-perl-container
+        ports:
+          - 8080:80
+        volumes:
+            - ./index:/var/www/shipping
+            - ./config/shipping.conf:/etc/nginx/conf.d/default.conf
+            - ./config/shipping.conf:/etc/nginx/sites-available/default
+            - ./config/shipping.conf:/etc/nginx/sites-enabled/default
+        links: 
+            - "mariadb-service:mariadb-service"
+        build:
+            context: .
+            dockerfile: ./dockerfile
+        depends_on:
+            - mariadb-service 
+        networks:
+            - shipping-challenge
+    
+    
+    
+    # mariadb
+    mariadb-service:
+      image: mariadb
+      container_name: mariadb-container
+      restart: always
+      volumes:
+            - ./mariadb:/var/lib/mysql
+      environment:
+        MYSQL_USER: root
+        MYSQL_ROOT_PASSWORD: abc123!
+        MYSQL_PASSWORD: abc123!
+      ports:
+        - 8000:8000
+      networks:
+            - shipping-challenge
